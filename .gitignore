@@ -1,0 +1,37 @@
+# Secrets -- never commit
+.env
+backend/.env
+*.key
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Claude Code / agent tooling -- never push these
+.claude/
+CLAUDE.md
+.cursor/
+
+# Build / deploy
+node_modules/
+.firebase/
+*.log
+firebase-debug.log
+*.output
+GreenRoute.zip
+.maps_key
+.gemini_key
+.deploy_project_id
+service-account-key.json

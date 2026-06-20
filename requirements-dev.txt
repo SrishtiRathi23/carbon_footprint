@@ -1,0 +1,4 @@
+# Test-only dependencies (kept separate from the runtime requirements).
+-r backend/requirements.txt
+pytest==8.3.4
+httpx==0.28.1

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GreenRoute FAQ - methodology, emission factors, privacy, and assumptions." />
+  <title>GreenRoute - FAQ</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="34" height="34" focusable="false">
+          <circle cx="18" cy="18" r="18" fill="#65a30d" />
+          <path d="M11 25c-1-8 6-15 16-15 0 10-7 16-15 16 0-4 2-8 6-11" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <span class="brand-name">GreenRoute</span>
+    </div>
+    <p class="tagline">Frequently asked <span class="hl">questions</span></p>
+    <nav class="top-nav" aria-label="Site">
+      <a href="index.html">Back to the app</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="faq-list">
+      <article class="faq-item">
+        <h2>How are the CO2 numbers calculated?</h2>
+        <p>
+          Deterministically, in code - never by the AI. For commutes we take the
+          real route distance from the Google Maps Routes API and multiply it by a
+          fixed emission factor for each mode. For appliances we convert usage into
+          daily kWh and multiply by the grid emission factor. The same inputs always
+          produce the same numbers.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>What emission factors do you use, and where are they from?</h2>
+        <p>
+          Commute (kg CO2 per km): driving 0.192 (average petrol car), bus/transit
+          0.105, walking 0, cycling 0.
+        </p>
+        <p>
+          Electricity: 0.71 kg CO2 per kWh, from the CEA CO2 Baseline Database,
+          Version 21.0 (Nov 2025), FY 2024-25 weighted average. Appliance power
+          ratings use standard BEE-rating ballpark figures.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>What does the AI actually do?</h2>
+        <p>
+          The Gemini model only writes the natural-language explanation and answers
+          your follow-up questions. It uses the numbers the code already computed -
+          it does not calculate or change any carbon figure. If the model is
+          unavailable, a built-in factual summary is shown instead.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>How is the recommended option chosen?</h2>
+        <p>
+          Options are sorted greenest-first (lowest CO2, then fastest). The
+          recommendation is the lowest-carbon option that is realistic for the
+          distance: walking is suggested up to 3 km and cycling up to 10 km, while
+          transit and driving are viable whenever a route exists. The recommended
+          card is marked with a label and a border, not by colour alone.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>What is the "this week" total?</h2>
+        <p>
+          It combines the CO2 you saved on logged commutes with the estimated CO2
+          from logged appliances for the current week, and also shows each part
+          separately so the two are never confused.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>Do you track my location?</h2>
+        <p>
+          No. There is no GPS or location permission. You type place names as plain
+          text and the Maps Routes API geocodes them. The website only ever talks to
+          the GreenRoute backend, which holds the API keys - your browser never sees
+          a key.
+        </p>
+      </article>
+
+      <article class="faq-item">
+        <h2>How accurate is this?</h2>
+        <p>
+          These are good-faith estimates using average factors (for example, an
+          average petrol car and average bus occupancy). Your real emissions depend
+          on your specific vehicle, occupancy, and driving conditions, so treat the
+          numbers as directional rather than exact.
+        </p>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="index.html">Back to GreenRoute</a></p>
+  </footer>
+</body>
+</html>

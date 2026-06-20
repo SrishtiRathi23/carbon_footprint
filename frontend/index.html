@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GreenRoute compares the carbon footprint of your commute options and home appliance use." />
+  <title>GreenRoute - Carbon Footprint Comparator</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="34" height="34" focusable="false">
+          <circle cx="18" cy="18" r="18" fill="#65a30d" />
+          <circle cx="18" cy="18" r="17" fill="none" stroke="#ffffff" stroke-opacity="0.18" />
+          <path d="M11 25c-1-8 6-15 16-15 0 10-7 16-15 16 0-4 2-8 6-11" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <span class="brand-name">GreenRoute</span>
+    </div>
+    <p class="pill">Carbon Footprint Awareness</p>
+    <p class="tagline">Track, reduce, and master your <span class="hl">carbon footprint</span>, one choice at a time.</p>
+    <nav class="top-nav" aria-label="Site">
+      <a href="faq.html">Frequently asked questions</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Weekly stats banner -->
+    <section class="stats" aria-labelledby="stats-heading">
+      <h2 id="stats-heading">This week</h2>
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-value" id="stat-combined" aria-live="polite">--</span>
+          <span class="stat-label">Combined CO2 tracked (kg)</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-saved" aria-live="polite">--</span>
+          <span class="stat-label">CO2 saved on commutes (kg)</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-appliance" aria-live="polite">--</span>
+          <span class="stat-label">CO2 from appliances (kg)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist" aria-label="Choose a calculator">
+      <button id="tab-commute" class="tab" role="tab" aria-selected="true" aria-controls="panel-commute">
+        Commute
+      </button>
+      <button id="tab-appliance" class="tab" role="tab" aria-selected="false" aria-controls="panel-appliance" tabindex="-1">
+        Home Appliances
+      </button>
+    </div>
+
+    <!-- Commute panel -->
+    <section id="panel-commute" class="panel" role="tabpanel" aria-labelledby="tab-commute">
+      <h2>Compare commute options</h2>
+      <form id="commute-form" novalidate>
+        <div class="field">
+          <label for="start">Start location</label>
+          <input type="text" id="start" name="start" autocomplete="off"
+                 required aria-required="true" placeholder="e.g. Connaught Place, Delhi" />
+        </div>
+        <div class="field">
+          <label for="destination">Destination</label>
+          <input type="text" id="destination" name="destination" autocomplete="off"
+                 required aria-required="true" placeholder="e.g. India Gate, Delhi" />
+        </div>
+        <button type="submit" class="btn-primary">Compare routes</button>
+      </form>
+
+      <div class="chips" role="group" aria-label="Example routes to try">
+        <span class="chips-label">Try:</span>
+        <button type="button" class="chip" data-start="Connaught Place, Delhi" data-dest="India Gate, Delhi">Delhi</button>
+        <button type="button" class="chip" data-start="Bandra, Mumbai" data-dest="Andheri, Mumbai">Mumbai</button>
+        <button type="button" class="chip" data-start="Koramangala, Bangalore" data-dest="MG Road, Bangalore">Bangalore</button>
+        <button type="button" class="chip" data-start="Hitech City, Hyderabad" data-dest="Charminar, Hyderabad">Hyderabad</button>
+        <button type="button" class="chip" data-start="T Nagar, Chennai" data-dest="Marina Beach, Chennai">Chennai</button>
+        <button type="button" class="chip" data-start="Salt Lake, Kolkata" data-dest="Howrah, Kolkata">Kolkata</button>
+      </div>
+
+      <p id="commute-status" class="status" role="status" aria-live="polite"></p>
+      <div id="commute-insight" class="tip" aria-live="polite"></div>
+
+      <div id="commute-chart" class="chart" aria-hidden="true"></div>
+      <ul id="commute-results" class="cards" aria-label="Route options, greenest first"></ul>
+
+      <section id="followup" class="followup" hidden aria-labelledby="followup-heading">
+        <h3 id="followup-heading">Ask the assistant</h3>
+        <p class="followup-hint">Have a follow-up about these results? Ask anything.</p>
+        <form id="ask-form" novalidate>
+          <div class="ask-row">
+            <label for="ask-input" class="visually-hidden">Your question</label>
+            <input type="text" id="ask-input" name="ask-input"
+                   placeholder="e.g. Why is cycling better than driving here?"
+                   autocomplete="off" maxlength="500" />
+            <button type="submit" class="btn-primary">Ask</button>
+          </div>
+        </form>
+        <p id="ask-status" class="status" role="status" aria-live="polite"></p>
+        <div id="ask-answer" class="ask-answer" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <!-- Appliance panel -->
+    <section id="panel-appliance" class="panel" role="tabpanel" aria-labelledby="tab-appliance" hidden>
+      <h2>Estimate home appliance carbon</h2>
+      <form id="appliance-form" novalidate>
+        <div class="field">
+          <label for="appliance">Appliance</label>
+          <select id="appliance" name="appliance" required aria-required="true">
+            <option value="">Select an appliance</option>
+          </select>
+        </div>
+        <div id="appliance-inputs"></div>
+        <button type="submit" class="btn-primary">Estimate</button>
+      </form>
+
+      <p id="appliance-status" class="status" role="status" aria-live="polite"></p>
+      <div id="appliance-result" class="appliance-result" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Carbon figures are deterministic estimates from published emission factors.
+      See the <a href="faq.html">FAQ</a> for sources, methodology, and assumptions.
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
