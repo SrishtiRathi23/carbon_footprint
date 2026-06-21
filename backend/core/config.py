@@ -106,6 +106,14 @@ APPLIANCES = {
 DAYS_PER_WEEK = 7
 
 # ---------------------------------------------------------------------------
+# Real-world equivalency factors
+# ---------------------------------------------------------------------------
+# Source: US EPA Greenhouse Gas Equivalencies Calculator
+# 1 smartphone charge = 8.22 x 10^-3 metric tons CO2 = 0.00822 kg CO2
+SMARTPHONE_CHARGE_CO2_KG = 0.00822
+
+
+# ---------------------------------------------------------------------------
 # Runtime configuration (all secrets come from environment variables)
 # ---------------------------------------------------------------------------
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "")

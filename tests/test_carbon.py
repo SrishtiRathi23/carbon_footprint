@@ -12,6 +12,7 @@ from core.carbon import (
     co2_saved_vs_baseline,
     is_viable,
     meters_to_km,
+    to_smartphone_charges,
 )
 
 
@@ -115,7 +116,16 @@ def test_build_comparison_no_driving_route():
     assert len(modes) == 3
     # A recommendation is still chosen from the remaining modes
     assert result["recommended_mode"] is not None
-    # No CO2 saved (baseline is 0) -- all savings should be 0.0
     for option in result["options"]:
         assert option["co2_saved_vs_driving_kg"] == 0.0
 
+
+def test_to_smartphone_charges():
+    # Negative or zero returns 0
+    assert to_smartphone_charges(0) == 0
+    assert to_smartphone_charges(-5.0) == 0
+    
+    # 0.00822 kg per charge
+    assert to_smartphone_charges(0.00822) == 1
+    # 1 kg / 0.00822 = 121.654... -> rounds to 122
+    assert to_smartphone_charges(1.0) == 122

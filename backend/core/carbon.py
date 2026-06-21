@@ -19,6 +19,7 @@ from .config import (
     BASELINE_MODE,
     COMMUTE_EMISSION_FACTORS,
     VIABILITY_MAX_KM,
+    SMARTPHONE_CHARGE_CO2_KG,
 )
 
 
@@ -62,6 +63,16 @@ def is_viable(mode: str, distance_km: float) -> bool:
     return distance_km <= max_km
 
 
+def to_smartphone_charges(kg_co2: float) -> int:
+    """Convert kg of CO2 into an equivalent number of smartphone charges.
+    
+    Uses EPA equivalence factor.
+    """
+    if kg_co2 <= 0:
+        return 0
+    return int(round(kg_co2 / SMARTPHONE_CHARGE_CO2_KG))
+
+
 def build_comparison(routes: Dict[str, Optional[dict]]) -> dict:
     """Assemble the full comparison result from raw per-mode route data.
 
@@ -88,15 +99,15 @@ def build_comparison(routes: Dict[str, Optional[dict]]) -> dict:
             continue
         distance_km = round(meters_to_km(data["distance_meters"]), 3)
         mode_co2 = co2_for_mode(distance_km, mode)
+        saved_kg = co2_saved_vs_baseline(mode_co2, baseline_co2)
         options.append(
             {
                 "mode": mode,
                 "distance_km": distance_km,
                 "duration_seconds": data.get("duration_seconds"),
                 "co2_emitted_kg": mode_co2,
-                "co2_saved_vs_driving_kg": co2_saved_vs_baseline(
-                    mode_co2, baseline_co2
-                ),
+                "co2_saved_vs_driving_kg": saved_kg,
+                "smartphone_charges_saved": to_smartphone_charges(saved_kg),
                 "viable": is_viable(mode, distance_km),
             }
         )

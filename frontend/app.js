@@ -289,6 +289,13 @@ function renderResults(data) {
     co2Div.appendChild(co2Text);
     co2Div.appendChild(co2Small);
 
+    if (option.smartphone_charges_saved > 0) {
+      const equivSmall = document.createElement("small");
+      equivSmall.className = "equivalency";
+      equivSmall.textContent = "Equivalent to " + option.smartphone_charges_saved + " smartphone charges saved";
+      co2Div.appendChild(equivSmall);
+    }
+
     li.appendChild(modeDiv);
     li.appendChild(co2Div);
     li.appendChild(meta);
@@ -576,6 +583,9 @@ function renderApplianceResult(data) {
   addRow("Daily energy", data.daily_kwh + " kWh");
   addRow("Daily CO2", data.co2_emitted_kg.toFixed(2) + " kg");
   addRow("Weekly CO2 (typical day x 7)", data.co2_emitted_weekly_kg.toFixed(2) + " kg");
+  if (data.smartphone_charges_emitted_weekly > 0) {
+    addRow("Equivalent", data.smartphone_charges_emitted_weekly + " smartphone charges / week");
+  }
 
   resultBox.appendChild(dl);
   container.appendChild(resultBox);

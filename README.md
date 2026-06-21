@@ -100,6 +100,11 @@ the real numbers behind a decision. GreenRoute answers two concrete questions â€
 - Public API surface of each Python package declared via `__all__` in
   `services/__init__.py` and `routes/__init__.py`.
 
+## Recent Upgrades
+- **Real-World Equivalency:** CO2 figures are now translated into tangible real-world equivalents (e.g., "equivalent to N smartphone charges") to improve practical usability and problem statement alignment.
+- **Efficiency:** Added long cache-control headers for static assets in `firebase.json`.
+- **Accessibility:** Added `prefers-reduced-motion` media query to disable transitions for users who prefer reduced motion.
+
 ---
 
 ## Technical Detail

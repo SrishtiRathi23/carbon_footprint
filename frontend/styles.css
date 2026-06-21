@@ -586,3 +586,11 @@ select:focus-visible,
   .pill { display: inline-block; margin-top: 0.6rem; }
   .bar-row { grid-template-columns: 4.5rem 1fr 2.6rem; gap: 0.5rem; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}

@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from core.appliances import appliance_daily_co2, appliance_daily_kwh, appliance_weekly_co2
+from core.carbon import to_smartphone_charges
 from core.config import APPLIANCES
 
 router = APIRouter()
@@ -47,4 +48,5 @@ def estimate(payload: EstimateRequest) -> dict:
         "daily_kwh": daily_kwh,
         "co2_emitted_kg": daily_co2,
         "co2_emitted_weekly_kg": weekly_co2,
+        "smartphone_charges_emitted_weekly": to_smartphone_charges(weekly_co2),
     }
