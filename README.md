@@ -160,21 +160,21 @@ rootdir: C:\Users\Vishnu Prakash\Desktop\GreenRoute
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.13.0, langsmith-0.8.18
-collected 46 items
+collected 47 items
 
 tests\test_appliances.py ..........                                      [ 21%]
-tests\test_ask_api.py ...                                                [ 28%]
-tests\test_carbon.py ...........                                         [ 52%]
-tests\test_compare_api.py ...                                            [ 58%]
+tests\test_ask_api.py ...                                                [ 27%]
+tests\test_carbon.py ............                                        [ 53%]
+tests\test_compare_api.py ...                                            [ 59%]
 tests\test_firestore_log.py ...                                          [ 65%]
 tests\test_logs_api.py .....                                             [ 76%]
-tests\test_rate_limit.py ....                                            [ 84%]
+tests\test_rate_limit.py ....                                            [ 85%]
 tests\test_validation_and_tip.py .......                                 [100%]
 
-============================= 46 passed in 0.61s ==============================
+============================= 47 passed in 0.47s ==============================
 ```
 
-- **46 passing tests.** Run them with `pytest` from the repo root.
+- **47 passing tests.** Run them with `pytest` from the repo root.
 - Pure commute math (hand-verified, e.g. `10 km × 0.192 = 1.92 kg`), appliance
   math across all eight input shapes, input sanitization, Gemini fallback,
   Firestore field-level assertions, the weekly-total aggregation,
