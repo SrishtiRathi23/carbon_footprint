@@ -10,6 +10,11 @@ Two uses:
 Every function degrades gracefully: if the API key is missing or a call
 fails, a deterministic local fallback is returned so the rest of the app is
 unaffected.
+
+Efficiency note: the GenerativeModel instance is created once per process
+(lazy singleton, same pattern as the Firestore client) rather than on every
+request, so ``genai.configure()`` and ``genai.GenerativeModel()`` are called
+at most once regardless of traffic.
 """
 
 import logging
@@ -18,16 +23,28 @@ from core.config import GEMINI_API_KEY, GEMINI_MODEL
 
 logger = logging.getLogger(__name__)
 
+# Module-level singleton -- created once on first use, never recreated.
+# None means either the key is missing or initialisation failed.
+_gemini_model = None
 
-def _model():
-    """Return a configured Gemini model, or None if unavailable."""
+
+def _get_model():
+    """Return the cached Gemini GenerativeModel, initialising it once if needed.
+
+    Returns ``None`` when the API key is absent or the SDK fails to import,
+    so callers can fall back to a deterministic tip without raising.
+    """
+    global _gemini_model
+    if _gemini_model is not None:
+        return _gemini_model
     if not GEMINI_API_KEY:
         return None
     try:
         import google.generativeai as genai
 
         genai.configure(api_key=GEMINI_API_KEY)
-        return genai.GenerativeModel(GEMINI_MODEL)
+        _gemini_model = genai.GenerativeModel(GEMINI_MODEL)
+        return _gemini_model
     except Exception as exc:  # noqa: BLE001
         logger.warning("Gemini init failed: %s", exc)
         return None
@@ -87,7 +104,7 @@ def generate_tip(comparison: dict) -> str:
     Always returns a usable string -- never raises -- so a Gemini outage can
     never break the comparison endpoint.
     """
-    model = _model()
+    model = _get_model()
     if model is None:
         return _fallback_tip(comparison)
 
@@ -110,7 +127,7 @@ def generate_tip(comparison: dict) -> str:
 
 def answer_followup(question: str, comparison: dict) -> str:
     """Answer a user's follow-up question grounded in the comparison numbers."""
-    model = _model()
+    model = _get_model()
     if model is None:
         return (
             "The assistant is unavailable right now, but you can compare the "

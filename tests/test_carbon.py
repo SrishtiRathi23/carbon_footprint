@@ -95,3 +95,27 @@ def test_build_comparison_recommends_driving_for_long_trip():
     }
     result = build_comparison(routes)
     assert result["recommended_mode"] == "transit"
+
+
+def test_build_comparison_no_driving_route():
+    """When driving data is absent (None), baseline_co2 must default to 0.0
+    and the function must not crash or return a negative saving."""
+    routes = {
+        "driving": None,  # no driving route returned by Maps API
+        "transit": {"distance_meters": 5200, "duration_seconds": 900},
+        "walking": {"distance_meters": 4800, "duration_seconds": 3600},
+        "cycling": {"distance_meters": 4900, "duration_seconds": 1200},
+    }
+    result = build_comparison(routes)
+    # No driving route => baseline is 0.0
+    assert result["baseline_co2_kg"] == 0.0
+    # Driving mode is omitted from options (None route is skipped)
+    modes = [o["mode"] for o in result["options"]]
+    assert "driving" not in modes
+    assert len(modes) == 3
+    # A recommendation is still chosen from the remaining modes
+    assert result["recommended_mode"] is not None
+    # No CO2 saved (baseline is 0) -- all savings should be 0.0
+    for option in result["options"]:
+        assert option["co2_saved_vs_driving_kg"] == 0.0
+

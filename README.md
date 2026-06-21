@@ -3,8 +3,8 @@
 **A carbon-footprint awareness platform that turns everyday choices into measurable CO2 numbers.**
 
 GreenRoute helps an individual understand, track, and reduce their carbon
-footprint through two simple tools that share one data store and one weekly
-total:
+footprint through two simple tools that share one data store and one **"this
+week" banner** (filtered to the current browser, no login required):
 
 1. **Commute Carbon Comparator** — enter a start and destination; the app
    fetches real route options (driving, transit, walking, cycling) from the
@@ -14,8 +14,9 @@ total:
    converts that into daily kWh and then into CO2 using the official Indian grid
    emission factor.
 
-Every choice can be logged, and a running **"this week"** banner combines
-commute savings and appliance emissions into one figure.
+Every choice can be logged, and a running **"this week"** banner shows your
+browser session's commute CO2 savings and appliance CO2 emissions separately
+so the two figures are never conflated.
 
 ---
 
@@ -67,9 +68,10 @@ Example, same trip, model-written tip:
 
 - **Detailed Insight:** The one-liner has been expanded into a detailed multi-sentence explanation.
 - **Follow-up AI Agent:** A chat box under the results (`/api/ask`) answers questions grounded in your actual comparison numbers.
-- **Bar Chart:** Results include a CSS bar chart comparing CO2 by mode.
+- **Bar Chart:** Results include a CSS bar chart comparing CO2 by mode, with an accessible screen-reader table equivalent.
 - **Quick Location Chips:** Example city/route chips to easily try out the commute comparator.
 - **FAQ Page:** A dedicated page detailing sources, methodology, and assumptions.
+- **Per-browser Weekly Stats:** A UUID is generated on first visit (stored in localStorage, no login) and used to filter the weekly banner to the current browser's own entries.
 
 ## How it works, end to end
 
@@ -84,7 +86,7 @@ Example, same trip, model-written tip:
    |-- phrase one tip (explanation only) ..... services/gemini_client.py -> Gemini API
    |-- log a choice / read weekly total ...... services/firestore_client.py -> Firestore
    v
- Cloud Firestore  (one collection, category = "commute" | "appliance")
+ Cloud Firestore  (one collection, category = "commute" | "appliance", indexed by session_id)
 ```
 
 1. The browser loads the static frontend from Firebase Hosting and talks **only**
@@ -174,11 +176,14 @@ All defined in [`backend/core/config.py`](backend/core/config.py).
   call or database write.
 - The frontend never holds an API key and never calls a Google API directly —
   it only calls the GreenRoute backend.
-- Logged carbon is **recomputed server-side**, so a tampered request cannot
-  inflate totals.
-- The comparison endpoint is **rate-limited per client IP**.
+- Logged commute CO2 is **recomputed server-side** from mode and distance, so a
+  tampered request cannot inflate totals. Appliance CO2 has always been
+  recomputed server-side.
+- The comparison, ask, **and log** endpoints are **rate-limited per client IP**.
+- `distance_km` on commute logs is bounded at 2000 km, preventing nonsensically
+  large stored values.
 - `.env` is git-ignored; nothing secret is committed. CORS is restricted to the
-  hosting origin in production.
+  hosting origin in production (defaults to no origins allowed, not wildcard).
 - Every external API failure is caught; the user sees a friendly message and
   internal error details are never leaked.
 
@@ -191,11 +196,13 @@ All defined in [`backend/core/config.py`](backend/core/config.py).
 - Cloud Run scales to zero between requests; the container is a slim image.
 
 **Testing — validation of functionality**
-- 33 passing tests: pure commute math (hand-verified, e.g. 10 km driving =
+- 46 passing tests: pure commute math (hand-verified, e.g. 10 km driving =
   1.92 kg), pure appliance math across every input shape, input sanitization,
   the Gemini fallback, Firestore field-level assertions, the combined weekly
-  total, and an integration test that mocks the Maps API and checks the
-  comparison endpoint returns correctly sorted and labelled results.
+  total, HTTP integration tests for the commute log endpoint (including
+  server-side CO2 recomputation verification), rate-limiter unit tests
+  (including thread-safety), and the build_comparison edge case when driving
+  data is absent.
 - Run them all with `pytest`.
 
 **Accessibility — inclusive and usable design**
@@ -314,6 +321,9 @@ for the deployed app.
 - **Rate limiting is per process.** On multi-instance Cloud Run each instance
   limits independently; a shared store (e.g. Redis) would give strict global
   limiting.
+- **The weekly stats banner** is filtered to the current browser's anonymous
+  session (a UUID in localStorage — no login, no credentials). Each browser
+  sees its own CO2 savings and appliance emissions, not global totals.
 
 ---
 

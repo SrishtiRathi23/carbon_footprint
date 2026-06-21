@@ -115,11 +115,23 @@ GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID", "")
 FIRESTORE_COLLECTION = os.environ.get("FIRESTORE_COLLECTION", "greenroute_logs")
 
 # Comma-separated list of origins allowed to call the backend (CORS).
+# Defaults to an EMPTY list (no cross-origin requests allowed) when the env
+# var is not set, so the app fails closed rather than wide-open. Set this to
+# your Firebase Hosting URL before deploying, e.g.:
+#   ALLOWED_ORIGINS=https://your-project.web.app
+import logging as _log
+
 ALLOWED_ORIGINS = [
     o.strip()
-    for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+    for o in os.environ.get("ALLOWED_ORIGINS", "").split(",")
     if o.strip()
 ]
+if not ALLOWED_ORIGINS:
+    _log.getLogger(__name__).warning(
+        "CORS: ALLOWED_ORIGINS env var is not set. All cross-origin requests "
+        "will be rejected. Set ALLOWED_ORIGINS=https://your-app.web.app "
+        "before deploying to production."
+    )
 
 # Rate limit for the comparison endpoint: max requests per window, per IP.
 RATE_LIMIT_MAX_REQUESTS = int(os.environ.get("RATE_LIMIT_MAX_REQUESTS", "30"))

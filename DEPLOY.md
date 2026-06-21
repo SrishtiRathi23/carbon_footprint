@@ -96,4 +96,23 @@ Firebase prints the hosting URL, e.g. `https://your-project-id.web.app`.
 - The Maps key lives only on Cloud Run (an environment variable), never in the
   frontend. The browser only ever calls your own backend.
 - If CORS blocks the frontend, make sure `ALLOWED_ORIGINS` on Cloud Run exactly
-  matches your hosting origin (including `https://`).
+  matches your hosting origin (including `https://`). If `ALLOWED_ORIGINS` is
+  not set, the backend now logs a loud warning and rejects all cross-origin
+  requests (fail-closed).
+
+## 5. Deploy Firestore indexes
+
+GreenRoute uses a composite Firestore index for the per-browser weekly stats
+query (`session_id` + `created_at`). Without this index, Firestore will
+return an error on the first filtered query in production.
+
+Deploy it once (no rebuild needed):
+
+```bash
+firebase deploy --only firestore:indexes
+```
+
+The index definition lives in [`firestore.indexes.json`](firestore.indexes.json).
+Firestore takes a few minutes to build the index; the app falls back to the
+un-filtered query in the meantime (showing global totals) until it is ready.
+

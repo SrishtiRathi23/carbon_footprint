@@ -5,6 +5,11 @@ week's totals. The Firestore client is created lazily so importing this module
 (e.g. during unit tests) never requires real credentials. All persisted
 documents share one collection and are distinguished by a ``category`` field
 ("commute" or "appliance").
+
+Session isolation: every document stores an opaque ``session_id`` (a
+client-generated UUID from localStorage) so that the weekly stats query can
+be filtered per-browser. This requires no credentials or auth middleware --
+the ID is purely an opaque filter key.
 """
 
 import datetime as _dt
@@ -47,6 +52,8 @@ def log_commute(entry: dict, client=None) -> dict:
     """Persist a commute selection and return the stored document.
 
     Stores exactly the fields the spec requires plus bookkeeping fields.
+    The ``session_id`` in ``entry`` is an opaque anonymous browser identifier
+    used only to filter per-browser weekly stats -- not a credential.
     """
     client = client or get_client()
     document = {
@@ -58,6 +65,7 @@ def log_commute(entry: dict, client=None) -> dict:
         "distance_km": entry["distance_km"],
         "co2_emitted": entry["co2_emitted"],
         "co2_saved_vs_driving": entry["co2_saved_vs_driving"],
+        "session_id": entry.get("session_id", ""),
         "created_at": _utcnow(),
     }
     client.collection(FIRESTORE_COLLECTION).add(document)
@@ -75,19 +83,31 @@ def log_appliance(entry: dict, client=None) -> dict:
         "daily_kwh": entry["daily_kwh"],
         "co2_emitted": entry["co2_emitted"],          # daily kg CO2
         "co2_emitted_weekly": entry["co2_emitted_weekly"],
+        "session_id": entry.get("session_id", ""),
         "created_at": _utcnow(),
     }
     client.collection(FIRESTORE_COLLECTION).add(document)
     return document
 
 
-def weekly_totals(client=None, now: Optional[_dt.datetime] = None) -> dict:
+def weekly_totals(
+    client=None,
+    now: Optional[_dt.datetime] = None,
+    session_id: str = "",
+) -> dict:
     """Aggregate this week's logs into one combined figure plus a breakdown.
 
-    - commute_co2_saved_kg : sum of co2_saved_vs_driving for commute logs.
+    - commute_co2_saved_kg     : sum of co2_saved_vs_driving for commute logs.
     - appliance_co2_emitted_kg : sum of weekly appliance emissions.
-    - combined_co2_kg : the single combined number the spec asks for
-      (commute savings + appliance emissions tracked this week).
+    - combined_co2_kg : commute savings + appliance emissions this week.
+
+    If ``session_id`` is provided (non-empty), only documents belonging to
+    that anonymous browser session are included, giving per-browser totals
+    without any login or credentials.  When omitted, all documents are
+    counted (used by tests and the health check).
+
+    Production note: the (session_id, created_at) query requires a composite
+    Firestore index defined in ``firestore.indexes.json``.
     """
     client = client or get_client()
     start = _week_start(now)
@@ -97,6 +117,9 @@ def weekly_totals(client=None, now: Optional[_dt.datetime] = None) -> dict:
     count = 0
 
     query = client.collection(FIRESTORE_COLLECTION).where("created_at", ">=", start)
+    if session_id:
+        query = query.where("session_id", "==", session_id)
+
     for snapshot in query.stream():
         data = snapshot.to_dict() or {}
         count += 1
